@@ -4,6 +4,7 @@ from pygame.locals import *
 import pickle
 import sys
 import os
+import json
 
 from level import *
 from rect import Rect
@@ -19,12 +20,17 @@ if os.path.exists(file):
         level = pickle.load(f)
 else:
     level = Level()
-tile_place = block_blue
+try:
+    with open(file+".json",'rb') as f:
+        data = json.load(f)
+except:
+    print("JSON file required to edit level.")
+    raise
+
+tile_place = 0
 
 while True:
     for event in pygame.event.get():
-        if event.type == QUIT:
-            quit()
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 4:
                 tile_place -= 1
@@ -38,7 +44,7 @@ while True:
                     tile_place += 1
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             quit()
-        if event.type == KEYDOWN and event.key == K_TAB:
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_TAB):
             with open(file,'wb') as f:
                 pickle.dump(level,f)
                 quit()
