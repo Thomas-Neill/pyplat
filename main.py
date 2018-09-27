@@ -17,9 +17,11 @@ class Game:
         self.load_level("test_level.lvl")
     def load_level(self,lvl):
         self.level = Level.load("levels/"+lvl)
+        self.level_save = pickle.dumps(self.level)
         self.player_save = pickle.dumps(self.player)
     def kill_player(self):
         self.player = pickle.loads(self.player_save)
+        self.level = pickle.loads(self.level_save)
         self.player.check_keys()
     def go(self):
         t = pygame.time.get_ticks()
@@ -35,6 +37,7 @@ class Game:
             dt = (pygame.time.get_ticks()-t)/1000
             t = pygame.time.get_ticks()
             self.player.update(self,dt)
+            self.level.update(self,dt)
             if self.player.dead:
                 self.kill_player()
             if self.player.oob_dir != None:
@@ -56,5 +59,5 @@ class Game:
             self.player.draw(self.window)
             pygame.display.update()
 
-            #self.clock.tick(45)
+            self.clock.tick(45)
 Game().go()

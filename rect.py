@@ -10,3 +10,15 @@ class Rect:
         return Rect(self.pos.copy(),self.w,self.h)
     def points(self):
         return [Vec(self.pos.x,self.pos.y),Vec(self.pos.x+self.w-1,self.pos.y),Vec(self.pos.x,self.pos.y+self.h-1),Vec(self.pos.x+self.w-1,self.pos.y+self.h-1)]
+    def contains(self,point):
+        return (self.pos.x <= point.x < self.pos.x+self.w-1) and (self.pos.y <= point.y < self.pos.y+self.h-1)
+    def collides(self,other):
+        for i in self.points():
+            if other.contains(i):
+                return True
+        for i in other.points():
+            if self.contains(i):
+                return True
+        return False
+    def center(self):
+        return Vec(self.pos.x + self.w//2,self.pos.y + self.h//2)

@@ -1,6 +1,0 @@
-{
-  "trans_north": "goto test_level.lvl",
-  "trans_east":"block",
-  "trans_west":"block",
-  "trans_south":"block"
-}

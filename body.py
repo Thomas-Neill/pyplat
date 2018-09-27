@@ -5,8 +5,8 @@ class Body:
         self.v = Vec()
         self.x_old = self.rect.pos.x
         self.y_old = self.rect.pos.y
-    def update(self):
-        self.rect.pos += self.v/60
+    def update(self,dt):
+        self.rect.pos += self.v*dt
     def begin_update(self):
         self.x_old = self.rect.pos.x
         self.y_old = self.rect.pos.y

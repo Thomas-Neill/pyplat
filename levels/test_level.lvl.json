@@ -1,6 +1,1 @@
-{
-  "trans_east": "block",
-  "trans_west": "block",
-  "trans_north": "block",
-  "trans_south": "goto other_level.lvl"
-}
+{"trans_east": "goto east_level.lvl", "trans_west": "block", "trans_north": "block", "trans_south": "block"}

@@ -18,3 +18,5 @@ class Vec:
         return f"Vec({self.x},{self.y})"
     def copy(self):
         return Vec(self.x,self.y)
+    def magnitude(self):
+        return (self.x**2+self.y**2)**(1/2)

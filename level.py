@@ -30,6 +30,7 @@ def draw_tile(window,tile,rect):
 class Level:
     def __init__(self):
         self.tiles = [[0 for i in range(25)] for j in range(25)]
+        self.entities = []
     @staticmethod
     def load(filename):
         try:
@@ -46,6 +47,10 @@ class Level:
         except:
             print(f"Bad filename: {filename}")
             raise
+    def add_entity(self,ent):
+        self.entities.append(ent)
+    def remove_entity(self,ent):
+        self.entities = [i for i in self.entities if i != ent]
     def draw(self,window):
         rect = Rect(Vec(0,0),20,20)
         for y in range(25):
@@ -54,6 +59,11 @@ class Level:
                 rect.pos.x += 20
             rect.pos.x = 0
             rect.pos.y += 20
+        for ent in self.entities:
+            ent.draw(window)
+    def update(self,game,dt):
+        for ent in self.entities:
+            ent.update(game,dt)
     def check_collision(self,rect):
         def getTile(point):
             ix = int(point.x//20)
