@@ -48,4 +48,4 @@ class Turret:
         if self.spawn_timer > 0.5:
             self.spawn_timer -= 0.5
             delta = game.player.body.rect.center() - self.body.rect.center()
-            game.level.add_entity(Bullet(self.body.rect.center(),delta*100/delta.magnitude()))
+            game.level.add_entity(Bullet(self.body.rect.center(),delta*300/delta.magnitude()))
