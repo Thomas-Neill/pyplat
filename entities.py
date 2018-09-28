@@ -45,7 +45,16 @@ class Turret:
         pygame.draw.rect(window,(0,255,0),self.body.rect.show())
     def update(self,game,dt):
         self.spawn_timer += dt
-        if self.spawn_timer > 0.5:
-            self.spawn_timer -= 0.5
+        if self.spawn_timer > 0.1:
+            self.spawn_timer -= 0.1
             delta = game.player.body.rect.center() - self.body.rect.center()
-            game.level.add_entity(Bullet(self.body.rect.center(),delta*300/delta.magnitude()))
+            game.level.add_entity(Bullet(self.body.rect.center(),delta*500/delta.magnitude()))
+
+class Platform:
+    def __init__(self,x,y,w,h):
+        self.body = Body(Rect(Vec(x,y)))
+    @staticmethod
+    def spawn(x,y,w,h):
+        return Platform(int(x),int(y),int(w),int(h))
+    def draw(self,window):
+        pygame.draw.rect(window,0,0,0,self.body.rect.show())
