@@ -13,6 +13,8 @@ class Rect:
     def contains(self,point):
         return (self.pos.x <= point.x < self.pos.x+self.w-1) and (self.pos.y <= point.y < self.pos.y+self.h-1)
     def collides(self,other):
+        if self == other:
+            return False
         for i in self.points():
             if other.contains(i):
                 return True

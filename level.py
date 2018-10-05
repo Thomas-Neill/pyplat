@@ -10,8 +10,8 @@ LEVEL_W = 500
 
 class Collision:
     Null = 0
-    Hit = 1
-    Kill = 2
+    Hit = 2
+    Kill = 1
     OOB_N = 3
     OOB_E = 4
     OOB_S = 5
@@ -64,17 +64,27 @@ class Level:
     def update(self,game,dt):
         for ent in self.entities:
             ent.update(game,dt)
-    def check_collision(self,rect):
-        def getTile(point):
+    def level_collision(self,rect):
+        results = []
+        for point in rect.points():
             ix = int(point.x//20)
             iy = int(point.y//20)
-            if iy < 0: return Collision.OOB_S
-            elif ix >= 25: return Collision.OOB_E
-            elif iy >= 25: return Collision.OOB_N
-            elif ix < 0: return Collision.OOB_W
-            return collisionTypes[self.tiles[ix][iy]]
-        results = [getTile(point) for point in rect.points()]
+            coll = None
+            if iy < 0: coll = Collision.OOB_S
+            elif ix >= 25: coll = Collision.OOB_E
+            elif iy >= 25: coll = Collision.OOB_N
+            elif ix < 0: coll = Collision.OOB_W
+            else: coll = collisionTypes[self.tiles[ix][iy]]
+            results.append(coll)
         result = Collision.Null
+        for i in results:
+            result = max(result,i)
+        return result
+    def check_collision(self,rect):
+        results = []
+        for i in self.entities:
+            results.append(i.check_collision(rect))
+        result = self.level_collision(rect)
         for i in results:
             result = max(result,i)
         return result

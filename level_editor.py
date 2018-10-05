@@ -15,10 +15,6 @@ from entities import *
 
 file = "levels/"+(len(sys.argv)>=2 and sys.argv[1]) or input("Filename? > ")
 
-pygame.init()
-window = pygame.display.set_mode((500,500))
-pygame.mouse.set_visible(False)
-
 level = None
 data = None
 
@@ -43,27 +39,30 @@ open_file()
 
 tile_place = 1
 
-def processIO():
-    print("Command syntax: ")
-    print("modify_data [attribute] = \"[new value]\"")
-    print("spawn_entity [entity class] [argument list]")
-    print("del_ents")
-    while True:
-        command = input("> ")
-        if "modify_data" in command:
-            attribute = command.split(" ")[1]
-            nv = command.split("\"")[1]
-            data[attribute] = nv
-        elif "spawn_entity" in command:
-            x = pygame.mouse.get_pos()[0]
-            y = 500-pygame.mouse.get_pos()[1]
-            args = command.split(" ")[2:]
-            level.add_entity(eval(command.split()[1]).spawn(x,y,*args))
-        elif "del_ents" in command:
-            level.entities = []
-ioThread = threading.Thread(target=processIO,args=())
-ioThread.daemon = True
-ioThread.start()
+def execute_command():
+    global command
+    if "modify_data" in command:
+        attribute = command.split(" ")[1]
+        nv = command.split("\"")[1]
+        data[attribute] = nv
+    elif "spawn_entity" in command:
+        x = pygame.mouse.get_pos()[0]
+        y = 500-pygame.mouse.get_pos()[1]
+        args = command.split(" ")[2:]
+        level.add_entity(eval(command.split()[1]).spawn(x,y,*args))
+    elif "del_ents" in command:
+        level.entities = []
+
+print("Command syntax: ")
+print("modify_data [attribute] = \"[new value]\"")
+print("spawn_entity [entity class] [argument list]")
+print("del_ents")
+
+pygame.init()
+window = pygame.display.set_mode((500,600))
+pygame.mouse.set_visible(False)
+font = pygame.font.Font(None,30)
+command = ""
 
 while True:
     for event in pygame.event.get():
@@ -91,6 +90,13 @@ while True:
                 nf = data["trans_west"]
             elif event.key == K_DOWN:
                 nf = data["trans_south"]
+            elif event.key == K_BACKSPACE:
+                command = command[0:len(command)-1]
+            elif event.key == K_RETURN:
+                execute_command()
+                command = ""
+            else:
+                command += event.unicode
             if nf != None:
                 if "goto" in nf:
                     nf = nf.split(" ")[1]
@@ -113,5 +119,7 @@ while True:
     rect.w = 2
     rect.h = 2
     pygame.draw.rect(window,(255,0,0),rect.show())
-
+    pygame.draw.rect(window,(200,250,250),(0,500,500,100))
+    rendered = font.render("> "+command,True,(0,0,0))
+    window.blit(rendered,(0,500))
     pygame.display.update()
