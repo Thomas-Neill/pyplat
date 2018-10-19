@@ -15,7 +15,6 @@ class Player:
         pygame.draw.rect(window,color,self.body.rect.show())
     def check_keys(self):
         self.body.v.x = 0
-        self.body.v.y = 0
         if pygame.key.get_pressed()[K_LEFT]:
             self.body.v.x = -200
         elif pygame.key.get_pressed()[K_RIGHT]:

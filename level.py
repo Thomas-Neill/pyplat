@@ -3,6 +3,7 @@ import pickle
 import json
 from rect import Rect
 from vec import Vec
+
 null,block_black,block_blue,block_red_kill,n_tiles = range(5)
 
 LEVEL_H = 500
@@ -27,6 +28,7 @@ def draw_tile(window,tile,rect):
         pygame.draw.rect(window,(0,0,255),rect.show())
     elif tile == block_red_kill:
         pygame.draw.rect(window,(255,0,0),rect.show())
+
 class Level:
     def __init__(self):
         self.tiles = [[0 for i in range(25)] for j in range(25)]
@@ -43,6 +45,7 @@ class Level:
                         Collision.OOB_E:result.data["trans_east"],
                         Collision.OOB_S:result.data["trans_south"],
                         Collision.OOB_W:result.data["trans_west"]}
+                    result.file = filename
                 return result
         except:
             print(f"Bad filename: {filename}")

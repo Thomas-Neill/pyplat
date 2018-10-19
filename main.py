@@ -14,16 +14,15 @@ class Game:
         self.window = pygame.display.set_mode((500,500))
         self.clock = pygame.time.Clock()
 
-        self.player = Player(Body(Rect(Vec(30,479),20,20)))
-        self.load_level("test_level.lvl")
+        self.player = Player(Body(Rect(Vec(30,20),20,20)))
+        self.load_level("start.lvl")
         self.respawn_timer = 0
     def load_level(self,lvl):
         self.level = Level.load("levels/"+lvl)
-        self.level_save = pickle.dumps(self.level)
         self.player_save = pickle.dumps(self.player)
     def respawn_player(self):
+        self.level = Level.load(self.level.file)
         self.player = pickle.loads(self.player_save)
-        self.level = pickle.loads(self.level_save)
         self.player.check_keys()
     def go(self):
         t = pygame.time.get_ticks()
@@ -52,7 +51,7 @@ class Game:
             if self.player.oob_dir != None:
                 result = self.level.transitions[self.player.oob_dir]
                 if result == "kill":
-                    self.kill_player()
+                    self.player.dead = True
                 elif result == "wrap":
                     self.player.wrap()
                 elif result == "block":
@@ -60,6 +59,10 @@ class Game:
                 elif "goto" in result:
                     to = result.split()[1]
                     self.player.wrap()
+                    if self.player.oob_dir == Collision.OOB_N:
+                        self.player.body.v.y += 300
+                        #dirty hack to allow the player to go up a screen
+                    self.player.oob_dir = None
                     self.load_level(to)
                 self.player.oob_dir = None
 

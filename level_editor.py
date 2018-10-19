@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import pygame
 from pygame.locals import *
 
@@ -13,8 +14,8 @@ from rect import Rect
 from vec import Vec
 from entities import *
 
-file = "levels/"+(len(sys.argv)>=2 and sys.argv[1]) or input("Filename? > ")
-
+file = (len(sys.argv)>=2 and sys.argv[1]) or input("Filename? > ")
+file = "levels/"+file
 level = None
 data = None
 
@@ -39,15 +40,27 @@ open_file()
 
 tile_place = 1
 
+modes = \
+    {
+        "grid_ents": False
+    }
+
 def execute_command():
     global command
     if "modify_data" in command:
         attribute = command.split(" ")[1]
         nv = command.split("\"")[1]
         data[attribute] = nv
+    elif "set_mode" in command:
+        attribute = command.split(" ")[1]
+        nv = eval(command.split("\"")[1])
+        modes[attribute] = nv
     elif "spawn_entity" in command:
         x = pygame.mouse.get_pos()[0]
         y = 500-pygame.mouse.get_pos()[1]
+        if modes["grid_ents"]:
+            x = (x//20)*20
+            y = (y//20)*20
         args = command.split(" ")[2:]
         level.add_entity(eval(command.split()[1]).spawn(x,y,*args))
     elif "del_ents" in command:
@@ -55,6 +68,9 @@ def execute_command():
 
 print("Command syntax: ")
 print("modify_data [attribute] = \"[new value]\"")
+print("  (Attributes are: trans_north,trans_east,trans_south,trans_west)")
+print("set_mode [mode] = \"[new value]\"")
+print("  (Modes are: grid_ents)")
 print("spawn_entity [entity class] [argument list]")
 print("del_ents")
 

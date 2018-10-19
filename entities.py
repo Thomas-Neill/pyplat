@@ -4,6 +4,7 @@ from vec import *
 from level import *
 
 import pygame
+import math
 
 '''
 A 'entity' is expected to implement:
@@ -41,33 +42,48 @@ class Bullet:
         return Collision.Null
 
 class Turret:
-    def __init__(self,x,y):
+    def __init__(self,x,y,direction):
         self.spawn_timer = 0
         self.body = Body(Rect(Vec(x,y),20,20))
+        if direction == "north":
+            self.bullet_v = Vec(0,500)
+        elif direction == "east":
+            self.bullet_v = Vec(500,0)
+        elif direction == "south":
+            self.bullet_v = Vec(0,-500)
+        elif direction == "west":
+            self.bullet_v = Vec(-500,0)
     @staticmethod
-    def spawn(x,y):
-        return Turret(int(x),int(y))
+    def spawn(x,y,direction):
+        return Turret(int(x),int(y),direction)
     def draw(self,window):
         pygame.draw.rect(window,(0,255,0),self.body.rect.show())
     def update(self,game,dt):
         self.spawn_timer += dt
-        if self.spawn_timer > 0.1:
-            self.spawn_timer -= 0.1
-            delta = game.player.body.rect.center() - self.body.rect.center()
-            game.level.add_entity(Bullet(self.body.rect.center(),delta*500/delta.magnitude()))
+        if self.spawn_timer > .5:
+            self.spawn_timer -= .5
+            game.level.add_entity(Bullet(self.body.rect.center(),self.bullet_v))
     def check_collision(self,rect):
         return Collision.Null
 
-class Platform:
+class MovingPlatform:
     def __init__(self,x,y,w,h):
         self.body = Body(Rect(Vec(x,y),w,h))
+        self.body.v.x = 100
     @staticmethod
     def spawn(x,y,w,h):
-        return Platform(int(x),int(y),int(w),int(h))
+        return MovingPlatform(int(x),int(y),int(w),int(h))
     def draw(self,window):
         pygame.draw.rect(window,(0,0,0),self.body.rect.show())
     def update(self,game,dt):
-        pass
+        self.body.update(dt)
+        while self.body.rect.collides(game.player.body.rect):
+            game.player.body.rect.pos.x += math.copysign(1,self.body.v.x)
+        if self.body.rect.pos.x > 300:
+            self.body.v.x = -100
+        elif self.body.rect.pos.x < 100:
+            self.body.v.x = 100
+
     def check_collision(self,rect):
         if self.body.rect.collides(rect):
             return Collision.Hit
