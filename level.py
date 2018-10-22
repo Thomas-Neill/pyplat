@@ -3,12 +3,14 @@ import pickle
 import json
 from rect import Rect
 from vec import Vec
+from functools import total_ordering
 
 null,block_black,block_blue,block_red_kill,n_tiles = range(5)
 
 LEVEL_H = 500
 LEVEL_W = 500
 
+@total_ordering
 class Collision:
     Null = 0
     Hit = 2
@@ -17,6 +19,18 @@ class Collision:
     OOB_E = 4
     OOB_S = 5
     OOB_W = 6
+    def __init__(self,type):
+        self.type = type
+        self.entity = None
+    def __lt__(self,other):
+        return self.type < other.type
+    def __eq__(self,other):
+        return self.type == other.type
+    @staticmethod
+    def with_entity(type,ent):
+        result = Collision(type)
+        result.entity = ent
+        return result
     @staticmethod
     def is_oob(coll):
         return Collision.OOB_N <= coll <= Collision.OOB_W
@@ -82,11 +96,11 @@ class Level:
         result = Collision.Null
         for i in results:
             result = max(result,i)
-        return result
+        return Collision(result)
     def check_collision(self,rect):
         results = []
-        for i in self.entities:
-            results.append(i.check_collision(rect))
+        for ent in self.entities:
+            results.append(Collision.with_entity(ent.check_collision(rect),ent))
         result = self.level_collision(rect)
         for i in results:
             result = max(result,i)

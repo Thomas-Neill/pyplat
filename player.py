@@ -64,8 +64,8 @@ class Player:
             self.body.v.y = max(self.body.v.y,-350)
         self.body.update_y(dt)
         coll = self.check_collision(game)
-        if coll != Collision.Null:
-            self.handle_collision(coll)
+        if coll.type != Collision.Null:
+            self.handle_collision(coll.type)
             self.body.reset_y()
             if self.body.v.y < 0:
                 self.can_jump = True
@@ -73,6 +73,6 @@ class Player:
         # UPDATE X
         self.body.update_x(dt)
         coll = self.check_collision(game)
-        if coll != Collision.Null:
-            self.handle_collision(coll)
+        if coll.type != Collision.Null:
+            self.handle_collision(coll.type)
             self.body.reset_x()
