@@ -18,3 +18,5 @@ class Body:
         self.rect.pos.x += self.v.x*dt
     def update_y(self,dt):
         self.rect.pos.y += self.v.y*dt
+    def update_with_v(self,v,dt):
+        self.rect.pos += v*dt

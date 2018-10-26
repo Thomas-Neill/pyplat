@@ -33,7 +33,7 @@ class Bullet:
         for i in range(10):
             self.body.update(dt/10)
             coll = game.level.check_collision(self.body.rect)
-            if coll != Collision.Null:
+            if coll.type != Collision.Null:
                 game.level.remove_entity(self)
                 return
     def check_collision(self,rect):
@@ -70,19 +70,26 @@ class MovingPlatform:
     def __init__(self,x,y,w,h):
         self.body = Body(Rect(Vec(x,y),w,h))
         self.body.v.x = 100
+        self.hit = False
     @staticmethod
     def spawn(x,y,w,h):
         return MovingPlatform(int(x),int(y),int(w),int(h))
     def draw(self,window):
         pygame.draw.rect(window,(0,0,0),self.body.rect.show())
     def update(self,game,dt):
-        self.body.update(dt)
+        '''self.body.update_x(dt)
         while self.body.rect.collides(game.player.body.rect):
             game.player.body.rect.pos.x += math.copysign(1,self.body.v.x)
         if self.body.rect.pos.x > 300:
             self.body.v.x = -100
         elif self.body.rect.pos.x < 100:
-            self.body.v.x = 100
+            self.body.v.x = 100'''
+        self.body.v.x = 0
+        self.body.update_y(dt)
+        if self.body.rect.pos.y > 300:
+            self.body.v.y = -100
+        elif self.body.rect.pos.y < 50:
+            self.body.v.y = 100
 
     def check_collision(self,rect):
         if self.body.rect.collides(rect):

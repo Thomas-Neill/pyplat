@@ -38,6 +38,8 @@ class Game:
             dt = (pygame.time.get_ticks()-t)/1000
             t = pygame.time.get_ticks()
 
+            dt *= 1
+
             if self.player.dead:
                 if self.respawn_timer < .5:
                     self.respawn_timer += dt
@@ -45,9 +47,11 @@ class Game:
                     self.respawn_timer = 0
                     self.respawn_player()
             else:
-                self.player.update(self,dt)
+                self.player.can_jump = False
+                for i in range(20):
+                    self.player.update(self,dt/20)
+                    self.level.update(self,dt/20)
 
-            self.level.update(self,dt)
             if self.player.oob_dir != None:
                 result = self.level.transitions[self.player.oob_dir]
                 if result == "kill":

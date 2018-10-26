@@ -12,6 +12,9 @@ class Player:
         self.dead = False
     def draw(self,window):
         color = (125,125,125)
+        if self.stand_flag:
+            self.stand_flag = False
+            color = (0,0,255)
         pygame.draw.rect(window,color,self.body.rect.show())
     def check_keys(self):
         self.body.v.x = 0
@@ -51,15 +54,27 @@ class Player:
             self.oob_dir = coll
         if coll == Collision.Kill:
             self.dead = True
+    def is_standing(self,game):
+        self.body.rect.pos.y -= 1
+        coll = self.check_collision(game).type
+        self.body.rect.pos.y += 1
+        if coll == Collision.Hit:
+            return True
+        return False
+    def standing_ent(self,game):
+        self.body.rect.pos.y -= 1
+        coll = self.check_collision(game).entity
+        self.body.rect.pos.y += 1
+        return coll
     def update(self,game,dt):
-        self.can_jump = False
-        for i in range(10):
-            self.update_step(game,dt/10)
-    def update_step(self,game,dt):
         self.body.begin_update()
+        #UPDATE Y
         if self.jump_timer > 0:
             self.jump_timer -= dt
         else:
+            if self.is_standing(game):
+                self.stand_flag = True
+                self.can_jump = True
             self.body.v.y -= 1000*dt
             self.body.v.y = max(self.body.v.y,-350)
         self.body.update_y(dt)
@@ -67,9 +82,9 @@ class Player:
         if coll.type != Collision.Null:
             self.handle_collision(coll.type)
             self.body.reset_y()
-            if self.body.v.y < 0:
-                self.can_jump = True
             self.body.v.y = 0
+            if coll.entity != None and coll.type == Collision.Hit:
+                self.body.update_with_v(coll.entity.body.v,dt)
         # UPDATE X
         self.body.update_x(dt)
         coll = self.check_collision(game)

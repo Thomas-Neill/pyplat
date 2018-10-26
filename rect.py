@@ -9,9 +9,12 @@ class Rect:
     def copy(self):
         return Rect(self.pos.copy(),self.w,self.h)
     def points(self):
-        return [Vec(self.pos.x,self.pos.y),Vec(self.pos.x+self.w-1,self.pos.y),Vec(self.pos.x,self.pos.y+self.h-1),Vec(self.pos.x+self.w-1,self.pos.y+self.h-1)]
+        return [Vec(self.pos.x,self.pos.y),
+                Vec(self.pos.x+self.w-1,self.pos.y),
+                Vec(self.pos.x,self.pos.y+self.h-1),
+                Vec(self.pos.x+self.w-1,self.pos.y+self.h-1)]
     def contains(self,point):
-        return (self.pos.x <= point.x < self.pos.x+self.w-1) and (self.pos.y <= point.y < self.pos.y+self.h-1)
+        return (self.pos.x <= point.x < self.pos.x+self.w-1) and (self.pos.y <= point.y < self.pos.y+self.h)
     def collides(self,other):
         if self == other:
             return False
