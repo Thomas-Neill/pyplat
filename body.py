@@ -5,8 +5,12 @@ class Body:
         self.v = Vec()
         self.x_old = self.rect.pos.x
         self.y_old = self.rect.pos.y
+        self.linked_body = None # A body to move when this body moves, in the same direction
     def update(self,dt):
         self.rect.pos += self.v*dt
+        if self.linked_body != None:
+            self.linked_body.rect.pos += self.v*dt
+            self.linked_body = None
     def begin_update(self):
         self.x_old = self.rect.pos.x
         self.y_old = self.rect.pos.y

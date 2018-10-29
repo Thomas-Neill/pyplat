@@ -10,6 +10,7 @@ class Player:
         self.can_jump = False
         self.oob_dir = None
         self.dead = False
+        self.stand_flag = False
     def draw(self,window):
         color = (125,125,125)
         if self.stand_flag:
@@ -55,15 +56,10 @@ class Player:
         if coll == Collision.Kill:
             self.dead = True
     def is_standing(self,game):
+        return self.standing_coll(game).type != Collision.Null
+    def standing_coll(self,game):
         self.body.rect.pos.y -= 1
-        coll = self.check_collision(game).type
-        self.body.rect.pos.y += 1
-        if coll == Collision.Hit:
-            return True
-        return False
-    def standing_ent(self,game):
-        self.body.rect.pos.y -= 1
-        coll = self.check_collision(game).entity
+        coll = self.check_collision(game)
         self.body.rect.pos.y += 1
         return coll
     def update(self,game,dt):
@@ -73,18 +69,24 @@ class Player:
             self.jump_timer -= dt
         else:
             if self.is_standing(game):
-                self.stand_flag = True
                 self.can_jump = True
             self.body.v.y -= 1000*dt
             self.body.v.y = max(self.body.v.y,-350)
         self.body.update_y(dt)
         coll = self.check_collision(game)
+        if coll.type == Collision.Null and self.is_standing(game) and self.body.v.y < 0:
+            while self.check_collision(game).type == Collision.Null:
+                self.body.rect.pos.y -= .01
+            coll = self.check_collision(game)
+            self.body.rect.pos.y += .01
+            self.body.begin_update()
+            self.stand_flag = True
         if coll.type != Collision.Null:
             self.handle_collision(coll.type)
             self.body.reset_y()
+            if coll.entity != None and coll.type == Collision.Hit and self.body.v.y < 0:
+                coll.entity.body.linked_body = self.body
             self.body.v.y = 0
-            if coll.entity != None and coll.type == Collision.Hit:
-                self.body.update_with_v(coll.entity.body.v,dt)
         # UPDATE X
         self.body.update_x(dt)
         coll = self.check_collision(game)

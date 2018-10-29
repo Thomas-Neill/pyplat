@@ -48,9 +48,17 @@ class Game:
                     self.respawn_player()
             else:
                 self.player.can_jump = False
-                for i in range(20):
-                    self.player.update(self,dt/20)
-                    self.level.update(self,dt/20)
+                steps = 10
+                for i in range(steps):
+                    self.player.update(self,dt/steps)
+                    before = self.player.check_collision(self)
+                    test = self.level.entities[0].body.linked_body
+                    self.level.update(self,dt/steps)
+                    after = self.player.check_collision(self)
+                    if before != after:
+                        print("Shit")
+                        if test == None:
+                            print("double shit")
 
             if self.player.oob_dir != None:
                 result = self.level.transitions[self.player.oob_dir]

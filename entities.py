@@ -77,15 +77,14 @@ class MovingPlatform:
     def draw(self,window):
         pygame.draw.rect(window,(0,0,0),self.body.rect.show())
     def update(self,game,dt):
-        '''self.body.update_x(dt)
-        while self.body.rect.collides(game.player.body.rect):
-            game.player.body.rect.pos.x += math.copysign(1,self.body.v.x)
-        if self.body.rect.pos.x > 300:
-            self.body.v.x = -100
-        elif self.body.rect.pos.x < 100:
-            self.body.v.x = 100'''
         self.body.v.x = 0
-        self.body.update_y(dt)
+        self.body.begin_update()
+        self.body.update(dt)
+        if self.body.rect.collides(game.player.body.rect):
+            self.body.reset_x()
+            self.body.reset_y()
+            self.body.linked_body = game.player.body
+            self.body.update(dt)
         if self.body.rect.pos.y > 300:
             self.body.v.y = -100
         elif self.body.rect.pos.y < 50:
