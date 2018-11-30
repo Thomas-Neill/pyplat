@@ -28,14 +28,13 @@ class Bullet:
     def spawn(x,y,dx,dy):
         return Bullet(Vec(int(x),int(y)),Vec(int(dx),int(dy)))
     def draw(self,window):
-        pygame.draw.rect(window,(0,0,0),self.body.rect.show())
+        pygame.draw.rect(window,(255,0,0),self.body.rect.show())
     def update(self,game,dt):
-        for i in range(10):
-            self.body.update(dt/10)
-            coll = game.level.check_collision(self.body.rect)
-            if coll.type != Collision.Null:
-                game.level.remove_entity(self)
-                return
+        self.body.update(dt)
+        coll = game.level.check_collision(self.body.rect)
+        if coll.type != Collision.Null:
+            game.level.remove_entity(self)
+            return
     def check_collision(self,rect):
         if self.body.rect.collides(rect):
             return Collision.Kill
@@ -46,13 +45,13 @@ class Turret:
         self.spawn_timer = 0
         self.body = Body(Rect(Vec(x,y),20,20))
         if direction == "north":
-            self.bullet_v = Vec(0,500)
+            self.bullet_v = Vec(0,300)
         elif direction == "east":
-            self.bullet_v = Vec(500,0)
+            self.bullet_v = Vec(300,0)
         elif direction == "south":
-            self.bullet_v = Vec(0,-500)
+            self.bullet_v = Vec(0,-300)
         elif direction == "west":
-            self.bullet_v = Vec(-500,0)
+            self.bullet_v = Vec(-300,0)
     @staticmethod
     def spawn(x,y,direction):
         return Turret(int(x),int(y),direction)
@@ -67,17 +66,29 @@ class Turret:
         return Collision.Null
 
 class MovingPlatform:
-    def __init__(self,x,y,w,h):
+    def __init__(self,x,y,w,h,movement_sequence):
         self.body = Body(Rect(Vec(x,y),w,h))
-        self.body.v.x = 100
         self.hit = False
+        self.movement_timer = 0
+        self.movement_pos = -1
+        self.movement_sequence = movement_sequence
     @staticmethod
-    def spawn(x,y,w,h):
-        return MovingPlatform(int(x),int(y),int(w),int(h))
+    def spawn(x,y,w,h,motions):
+        motionSequence = []
+        for i in motions.split(";"):
+            data = list(map(int,i.split(",")))
+            motionSequence.append((Vec(data[0],data[1]),data[2]))
+        return MovingPlatform(int(x),int(y),int(w),int(h),motionSequence)
     def draw(self,window):
         pygame.draw.rect(window,(0,0,0),self.body.rect.show())
     def update(self,game,dt):
-        self.body.v.x = 0
+        if self.movement_timer <= 0:
+            self.movement_pos += 1
+            self.movement_pos %= len(self.movement_sequence)
+            self.movement_timer = self.movement_sequence[self.movement_pos][1]
+            self.body.v = self.movement_sequence[self.movement_pos][0]
+        else:
+            self.movement_timer -= dt
         self.body.begin_update()
         self.body.update(dt)
         if self.body.rect.collides(game.player.body.rect):
@@ -85,12 +96,18 @@ class MovingPlatform:
             self.body.reset_y()
             self.body.linked_body = game.player.body
             self.body.update(dt)
-        if self.body.rect.pos.y > 300:
-            self.body.v.y = -100
-        elif self.body.rect.pos.y < 50:
-            self.body.v.y = 100
 
     def check_collision(self,rect):
         if self.body.rect.collides(rect):
             return Collision.Hit
         return Collision.Null
+
+
+class PeriodicPlatform:
+    @staticmethod
+    def spawn(x,y,w,h,delta,period):
+        delta = delta.split(",")
+        delta = Vec(int(delta[0]),int(delta[1]))
+        period = int(period)
+        movement = [(delta/period,period),(-delta/period,period)]
+        return MovingPlatform(int(x),int(y),int(w),int(h),movement)

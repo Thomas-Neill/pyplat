@@ -8,6 +8,7 @@ import os
 import shutil
 import json
 import threading
+import textwrap
 
 from level import *
 from rect import Rect
@@ -42,7 +43,7 @@ tile_place = 1
 
 modes = \
     {
-        "grid_ents": False
+        "grid_ents": True
     }
 
 def execute_command():
@@ -136,6 +137,10 @@ while True:
     rect.h = 2
     pygame.draw.rect(window,(255,0,0),rect.show())
     pygame.draw.rect(window,(200,250,250),(0,500,500,100))
-    rendered = font.render("> "+command,True,(0,0,0))
-    window.blit(rendered,(0,500))
+    final = textwrap.wrap("> "+command,45)
+    y = 500
+    for i in final:
+        rendered = font.render(i,True,(0,0,0))
+        window.blit(rendered,(0,y))
+        y += 20
     pygame.display.update()

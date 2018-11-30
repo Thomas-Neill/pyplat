@@ -7,6 +7,7 @@ from body import Body
 from player import Player
 from level import *
 import pickle
+import copy
 
 class Game:
     def __init__(self):
@@ -19,10 +20,11 @@ class Game:
         self.respawn_timer = 0
     def load_level(self,lvl):
         self.level = Level.load("levels/"+lvl)
-        self.player_save = pickle.dumps(self.player)
+        self.level_save = copy.deepcopy(self.level)
+        self.player_save = copy.deepcopy(self.player)
     def respawn_player(self):
-        self.level = Level.load(self.level.file)
-        self.player = pickle.loads(self.player_save)
+        self.level = copy.deepcopy(self.level_save)
+        self.player = copy.deepcopy(self.player_save)
         self.player.check_keys()
     def go(self):
         t = pygame.time.get_ticks()
@@ -38,8 +40,6 @@ class Game:
             dt = (pygame.time.get_ticks()-t)/1000
             t = pygame.time.get_ticks()
 
-            dt *= 1
-
             if self.player.dead:
                 if self.respawn_timer < .5:
                     self.respawn_timer += dt
@@ -47,19 +47,10 @@ class Game:
                     self.respawn_timer = 0
                     self.respawn_player()
             else:
-                self.player.can_jump = False
                 steps = 10
                 for i in range(steps):
                     self.player.update(self,dt/steps)
-                    before = self.player.check_collision(self)
-                    test = self.level.entities[0].body.linked_body
                     self.level.update(self,dt/steps)
-                    after = self.player.check_collision(self)
-                    if before != after:
-                        print("Shit")
-                        if test == None:
-                            print("double shit")
-
             if self.player.oob_dir != None:
                 result = self.level.transitions[self.player.oob_dir]
                 if result == "kill":

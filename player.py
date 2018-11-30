@@ -7,15 +7,11 @@ class Player:
     def __init__(self,body):
         self.body = body
         self.jump_timer = 0
-        self.can_jump = False
+        self.can_jump_timer = 0
         self.oob_dir = None
         self.dead = False
-        self.stand_flag = False
     def draw(self,window):
         color = (125,125,125)
-        if self.stand_flag:
-            self.stand_flag = False
-            color = (0,0,255)
         pygame.draw.rect(window,color,self.body.rect.show())
     def check_keys(self):
         self.body.v.x = 0
@@ -28,10 +24,10 @@ class Player:
             self.body.v.x -= 200
         elif key == K_RIGHT:
             self.body.v.x += 200
-        elif key == K_SPACE and self.can_jump:
+        elif key == K_SPACE and self.can_jump_timer > 0:
             self.body.v.y = 210
             self.jump_timer = 0.2
-            self.can_jump = False
+            self.can_jump_timer = 0
     def keyup(self,key):
         if key == K_LEFT:
             self.body.v.x += 200
@@ -64,12 +60,13 @@ class Player:
         return coll
     def update(self,game,dt):
         self.body.begin_update()
+        self.can_jump_timer -= dt
         #UPDATE Y
         if self.jump_timer > 0:
             self.jump_timer -= dt
         else:
             if self.is_standing(game):
-                self.can_jump = True
+                self.can_jump_timer = .1
             self.body.v.y -= 1000*dt
             self.body.v.y = max(self.body.v.y,-350)
         self.body.update_y(dt)
@@ -80,7 +77,6 @@ class Player:
             coll = self.check_collision(game)
             self.body.rect.pos.y += .01
             self.body.begin_update()
-            self.stand_flag = True
         if coll.type != Collision.Null:
             self.handle_collision(coll.type)
             self.body.reset_y()
